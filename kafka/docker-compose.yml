@@ -1,0 +1,91 @@
+services:
+  kafka1:
+    # The image we're using, prefixed with the registry `docker.io` for security and to make podman happy.
+    image: docker.io/confluentinc/cp-kafka
+    # The name of the container. There can be only one container with this name.
+    container_name: kafka1
+    # The name of the host. Other services in the network can use this name for DNS name resolution.
+    hostname: kafka1
+    # The default network is not open to the outside when using podman. Services in the same network can reach each other.
+    networks:
+      - bdp
+    # Port forwarding from the docker host (docker machine) to this container.
+    ports:
+      - "9092:9092"
+    environment:
+      # Role(s) for this broker. In production settings combining multiple roles is not supported.
+      # The controller role is only available when using KRaft.
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      # Unique identifier for this server.
+      KAFKA_NODE_ID: 1
+      # Necessary for KRaft. Format: [kafka node id]@[host]:[port].
+      # Note that controller communication is not exposed on the outside.
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka1:29093,2@kafka2:29093,3@kafka3:29093'
+      # The name used in the KAFKA_LISTENERS setting indicating on what TCP port to listen as a KRaft controller.
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT'
+      # What ports to listen for what reason.
+      KAFKA_LISTENERS: 'INTERNAL://kafka1:29092,CONTROLLER://kafka1:29093,EXTERNAL://0.0.0.0:9092'
+      # What listeners are advertised in the metadata fetch (the connection to the bootstrap server).
+      KAFKA_ADVERTISED_LISTENERS: 'INTERNAL://kafka1:29092,EXTERNAL://localhost:9092'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'INTERNAL'
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
+      # Must be the same for all brokers joining the cluster. Can be generated using the `kafka-storage` tool.
+      CLUSTER_ID: 'ciWo7IWazngRchmPES6q5A=='
+      KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
+
+  kafka2:
+    image: docker.io/confluentinc/cp-kafka
+    container_name: kafka2
+    hostname: kafka2
+    networks:
+      - bdp
+    # Note: different port than above.
+    ports:
+      - "9093:9093"
+    environment:
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      # Note: different ID than kafka1.
+      KAFKA_NODE_ID: 2
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka1:29093,2@kafka2:29093,3@kafka3:29093'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT'
+      # Note: different port than kafka1.
+      KAFKA_LISTENERS: 'INTERNAL://kafka2:29092,CONTROLLER://kafka2:29093,EXTERNAL://0.0.0.0:9093'
+      # Note: different port than kafka1.
+      KAFKA_ADVERTISED_LISTENERS: 'INTERNAL://kafka2:29092,EXTERNAL://localhost:9093'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'INTERNAL'
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
+      CLUSTER_ID: 'ciWo7IWazngRchmPES6q5A=='
+      KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
+
+  kafka3:
+    image: docker.io/confluentinc/cp-kafka
+    container_name: kafka3
+    hostname: kafka3
+    networks:
+      - bdp
+    ports:
+      - "9094:9094"
+    environment:
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_NODE_ID: 3
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka1:29093,2@kafka2:29093,3@kafka3:29093'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT'
+      KAFKA_LISTENERS: 'INTERNAL://kafka3:29092,CONTROLLER://kafka3:29093,EXTERNAL://0.0.0.0:9094'
+      KAFKA_ADVERTISED_LISTENERS: 'INTERNAL://kafka3:29092,EXTERNAL://localhost:9094'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'INTERNAL'
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
+      CLUSTER_ID: 'ciWo7IWazngRchmPES6q5A=='
+      KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
+networks:
+  bdp:
+    # Bridge mode, for more information: https://docs.docker.com/engine/network/drivers/bridge/
+    driver: bridge
