@@ -53,3 +53,45 @@ Note: the order in which messages are read are not necessarily the same as the o
 
 ## Kafkacat Console Consumer: Groups
 
+`-G`-option to specify the group, `-t` is supplied after the name of the consumer group.
+
+Example: `kafkacat -C -b 127.0.0.1:9092 -G my-first-application first_topic`
+
+## Consumer groups: where to start?
+
+`auto.offset.reset` - earliest - latest - none
+
+## Kafakcat Console Consumer: Groups
+
+To show all the messages written to the topic:
+
+`kafkacat -C -b 127.0.0.1:9092 -G my-second-application first_topic -X auto.offset.rest=beginning`
+
+Stop the command and run it again. The messages are not shown again.
+
+## Kafka Consumer Groups
+
+To show all the known consumer groups:
+
+`kafka-consumer-groups --bootstrap-server kafka1:29092 --list`
+
+To describe a consumer group:
+
+`kafka-consumer-groups --bootstrap-server kafka1:29092 --describe --group my-first-application`
+
+## Resetting offsets
+
+`kafka-consumer-groups` has an option `-reset-offsets`, you can choose between:
+
+- `-to-datetime`
+- `-by-period`
+- `-to-earliest`
+- `-shift-by`
+
+Example: `kafka-consumer-groups --bootstrap-server kafka1:29092 --group my-first-application --reset-offsets --to-earliest --execute --topic first_topic`
+
+You will see the data once more.
+
+Example: `kafka-consumer-groups --bootstrap-server kafka1:29092 --group my-first-application --reset-offsets --shift-by -2 --execute --topic first_topic`
+
+You will see 6 messages, 2 messages back for each of the three partitions.
