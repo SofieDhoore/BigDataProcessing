@@ -16,7 +16,7 @@ kafka-topics --bootstrap-server kafka2:29092 --list
 
 Output
 
-```
+```console
 __consumer_offsets
 my-topic
 ```
@@ -49,7 +49,7 @@ kafkacat -b localhost:9092 -C -t my-topic -o beginning
 
 Will show all the messages that were sent to `my-topic`. Notice how we **do not** see the messages in the same order they were sent!
 
-```
+```console
 message 2
 message 7
 message 11
@@ -92,7 +92,7 @@ Leave the consumers running (but possible stop the producer). Run the following 
 
  This could show something like this:
 
- ```
+ ```console
  GROUP           TOPIC           PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG             CONSUMER-ID                                           HOST            CLIENT-ID
 my-app          my-topic        0          2               2               0               console-consumer-6cbe079d-dbdc-4dfe-87bb-153c51b6f9cb /172.18.0.4     console-consumer
 my-app          my-topic        1          4               4               0               console-consumer-6cbe079d-dbdc-4dfe-87bb-153c51b6f9cb /172.18.0.4     console-consumer
@@ -103,7 +103,7 @@ my-app          my-topic        4          5               5               0    
 
  After sending some messages, run the previous command again. You could see something like this:
 
-```
+```console
  Consumer group 'my-app' has no active members.
 
 GROUP           TOPIC           PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG             CONSUMER-ID     HOST            CLIENT-ID
@@ -119,7 +119,7 @@ Restart on of the consumers, it will read these 11 messages!
 
 Stop the consumer. You cannot reset the offsets while a consumer is active in the consumer group.  After stopping the consumer execute:
 
-```
+```bash
 kafka-consumer-groups --bootstrap-server kafka1:19092 --group my-app --shift-by -2 --topic my-topic --reset-offsets --execute
 ```
 
@@ -133,7 +133,7 @@ echo "key1:message100" | kafkacat -b localhost:9092 -P -K : -t test_topic
 
 If you read with the same command as before:
 
-```
+```bash
 kafkacat -b localhost:9092 -C -t test_topic
 ```
 
