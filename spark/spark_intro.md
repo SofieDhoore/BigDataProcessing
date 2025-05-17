@@ -1,4 +1,4 @@
-# Spark introduction
+# Spark Dataframe API
 
 ## Inspecting Spark's Physical Plan
 
@@ -122,30 +122,89 @@ import org.apache.spark.sql.SparkSession;
 
 public class IntroductionDataFrameExample {
 
-  public static void main(String[] args) {
-    Logger.getLogger("org.apache").setLevel(Level.WARN);
+    public static void main(String[] args) {
+      Logger.getLogger("org.apache").setLevel(Level.WARN);
 
-   // Create Spark Session
-    SparkSession spark = SparkSession.builder()
-      .appName("IntroductionDataFrameExample")
-      .master("local[*]").getOrCreate();
+    // Create Spark Session
+      SparkSession spark = SparkSession.builder()
+        .appName("IntroductionDataFrameExample")
+        .master("local[*]").getOrCreate();
 
-    Dataset<Row> textFile = spark.read().text(
-       "src/main/resources/README.md");
+      Dataset<Row> textFile = spark.read().text(
+        "src/main/resources/README.md");
 
-    System.out.println("Number of lines: " + textFile.count());
+      System.out.println("Number of lines: " + textFile.count());
 
-    System.out.println("The first line is: " + textFile.first());
+      System.out.println("The first line is: " + textFile.first());
 
-    /* Filter lines containing spark. Note: getString(0) gets the
-       first (index 0) element and casts it to a String. */
-    Dataset<Row> linesWithSpark = textFile.filter(
-      line -> line.getString(0).contains("Spark"));
+      /* Filter lines containing spark. Note: getString(0) gets the
+        first (index 0) element and casts it to a String. */
+      Dataset<Row> linesWithSpark = textFile.filter(
+        line -> line.getString(0).contains("Spark"));
 
-    System.out.println("Number of lines with 'Spark': " +
-      linesWithSpark.count());
+      System.out.println("Number of lines with 'Spark': " +
+        linesWithSpark.count());
 
-    spark.close();
- }
+      spark.close();
+  }
 }
+```
+
+## Selecting Rows
+
+```java
+// class WhereExample
+Dataset<Row> df = // as before. students.csv
+
+// Select students with grade "A+"
+Dataset<Row> dfAplus = df.select("student_id", "year", "subject", "grade")
+                          .where(col("grade").equalTo("A+"));
+
+dfAplus.show(2);
+
+// Select students with grade B in the year 2010 or 2011
+
+Dataset<Row> dfB1011 =
+  df.select("student_id", "year", "subject", "grade")
+    .where(col("grade").equalTo("B")
+          .and(col("year").isin(2010,2011))
+          );
+dfB1011.show(2);
+```
+
+## Removing Duplicate Rows
+
+```java
+// Distinct students with grade B in any course the year 2010 or 2011
+Dataset<Row> dfDistinct =
+  df.select("student_id", "year", "grade")
+    .where(col("grade").equalTo("B")
+    .and(col("year").isin(2010,2011)))
+    .distinct();
+```
+
+## Simple Aggregation Example
+
+```java
+// class: AggregationExample
+Dataset<Row> df = spark.read() .... //students.csv
+// Example one: count the number of exams in each year.
+//              order the results by count, descending
+// df is the Dataframe of students
+df.select("year").groupBy("year")
+    .count().orderBy(desc("count")).show();
+```
+
+## General Aggregations
+
+```java
+df.select("year", "subject", "score").groupBy("year", "subject")
+    .agg(max("score"), min("score"), avg("socre")).show();
+```
+
+```java
+df.select("year", "subject", "score").groupBy("year", "subject")
+    .agg(max("score").alias("max"), 
+    min("score").alias("min"),
+    round(avg("socre"), 2).alias("average")).show();
 ```
