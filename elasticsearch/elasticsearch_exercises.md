@@ -195,7 +195,7 @@ GET /the-big-data-theory/_search
 Search for a document, and use a second request delete by id:
 
 ```json
-GET /the-big-data-theory/_search
+GET /the-big-data-theory/_doc
 {
   "query": {
     "match": {
@@ -239,6 +239,60 @@ Use optimistic version control to prevent overwriting changes:
 POST /products/_update/2?if_primary_term=1&if_seq_no=2
 { "doc" : {
     "rating" : 10
+    }
+}
+```
+
+## Solution bulk_lesson11
+
+```json
+PUT /_bulk
+    {"index": {"_index": "the-big-data-theory"}}
+    {
+        "title": "The Data Deluge",
+        "synopsis": "In the pilot episode, we meet our nerdy protagonist, Sheldon Data,
+        a brilliant but socially awkward big data analyst working at CalTech. Sheldon
+        struggles to cope with the overwhelming influx of data pouring into the
+        university''s servers. When the university's HDFS (Hadoop Distributed File System)
+        crashes due to the sheer volume of data, Sheldon must team up with his equally
+        quirky colleagues, Leonard, Howard, and Raj, to come up with a solution before
+        chaos ensues.",
+        "first_air_date": "2024-01-01",
+        "rating": 8.2,
+        "episode_number": 1,
+        "season_number": 1,
+        "series_id": 1,
+        "topics": ["Big Data", "HDFS", "CalTech", "Hadoop", "Nerdy"]
+    }
+    { "index": { "_index": "the-big-data-theory" } }
+    {
+        "title": "The Spark of Genius",
+        "synopsis": "Sheldon becomes obsessed with Spark, a powerful data processing
+        framework, after attending a seminar by a renowned data scientist. He convinces
+        his friends to join him in a hackathon to optimize their data pipelines using
+        Spark. Meanwhile, Penny, their non-technical neighbor, inadvertently stumbles upon
+        a breakthrough idea that helps them win the hackathon. Sheldon grudgingly admits
+        that sometimes simplicity is the key to success.",
+        "first_air_date": "2024-01-08",
+        "rating": 8.5,
+        "episode_number": 2,
+        "season_number": 1,
+        "series_id": 1,
+        "topics": ["Spark", "Hackathon", "Data Processing", "Nerdy", "Innovation"]
+    }
+```
+
+## Search for documents solutions lesson 11
+
+Find the document with episode_number equal to 3:
+
+```json
+GET /the-big-data-theory/_search
+{
+    "query": {
+        "term": {
+          "episode_number": 3
+        }
     }
 }
 ```

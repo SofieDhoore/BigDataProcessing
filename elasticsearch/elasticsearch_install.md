@@ -39,3 +39,5 @@ Go to the new directory `cd elasticsearch` and run the following command: `curl 
 Now, there are some containers starting up. You can find your Username and password to log in on Elastic Search and Kibana.
 
 Go to `http://localhost:9200` and to `http://localhost:5601` to test some stuff.
+
+To find the `.env`-file, go to the right directory `cd elasticsearch` and `cd elastic-start-local` in my case. But the command `ls -la` to see the hidden files.
